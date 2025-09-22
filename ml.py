@@ -8,7 +8,7 @@ misclassified = (y_true != y_pred).astype(int)
 L_theta = misclassified.mean()
 print("Misclassification rate:", L_theta)
 # this helps u createa a misclassification rate that helps that understand the current Ml learning better or not also if the number is bigger it is worse 
-### this is the next place that it doesnt allow that a errorr would be place  and it helps to create a set of data taht doesnt allow a error 
+### this is the next place that it doesnt allow that a errorr would be place  and it helps to create a set of data that doesnt allow a error 
 
 # it calls asymmetric loss function ℓ(y, yˆ) 
 import numpy as np
