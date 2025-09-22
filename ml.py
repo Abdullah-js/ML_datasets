@@ -26,3 +26,22 @@ def asymmetric_loss(y_true, y_pred, c_fn=5, c_fp=1):
 y_true = np.array([1, 0, 1, 1, 0])
 y_pred = np.array([0, 0, 1, 0, 1])
 print("Asymmetric loss:", asymmetric_loss(y_true, y_pred, c_fn=5, c_fp=1))
+### we also got ERM with asymmetric loss we are using for false positive or false negative it is usefull since we are going to need make sure we are going to do the most rewarding one for our use case rather than be too strict
+## basic examples 
+import numpy as np
+from sklearn.datasets import make_classification
+from sklearn.linear_model import LogisticRegression
+# toy dataset
+X, y = make_classification(n_samples=200, n_features=2, random_state=42)
+# train logistic regression
+clf = LogisticRegression().fit(X, y)
+y_pred = clf.predict(X)
+# asymmetric loss
+def asymmetric_loss(y_true, y_pred, c_fn=5, c_fp=1):
+    return np.mean([
+        0 if yt == yp else (c_fn if yt == 1 else c_fp)
+        for yt, yp in zip(y_true, y_pred)
+    ])
+# empirical risk with asymmetric loss
+risk = asymmetric_loss(y, y_pred)
+print("Empirical risk (asymmetric):", risk)
