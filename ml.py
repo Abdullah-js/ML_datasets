@@ -22,7 +22,7 @@ def asymmetric_loss(y_true, y_pred, c_fn=5, c_fp=1):
         elif yt == 0 and yp == 1:  # false positive
             losses.append(c_fp)
     return np.mean(losses)
-# Example: true vs predictions
+# true vs predictions
 y_true = np.array([1, 0, 1, 1, 0])
 y_pred = np.array([0, 0, 1, 0, 1])
 print("Asymmetric loss:", asymmetric_loss(y_true, y_pred, c_fn=5, c_fp=1))
@@ -64,3 +64,84 @@ y_pred = [2.5, 0.0, 2, 8]
 
 print("Single loss example (y=3, y_hat=2.5):", l2_loss(3, 2.5))
 print("MSE for dataset:", mse(y_true, y_pred))
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Gaussian distribution function
+def gaussian(y, mu=0, sigma=1):
+    return (1 / np.sqrt(2 * np.pi * sigma**2)) * np.exp(-0.5 * ((y - mu)**2) / sigma**2)
+
+y_values = np.linspace(-5, 5, 200)
+mu = 0   # mean
+sigma = 1.0  # standard deviation
+
+pdf = gaussian(y_values, mu, sigma)
+
+plt.plot(y_values, pdf)
+plt.title(f"Gaussian Distribution (μ={mu}, σ²={sigma**2})")
+plt.xlabel("y")
+plt.ylabel("p(y | μ, σ²)")
+plt.grid(True)
+plt.show()
+# now Negative Log-Likelihood Loss version 
+import numpy as np
+import matplotlib.pyplot as plt
+
+# --- 1. Create toy data ---
+np.random.seed(0)
+X = np.linspace(-3, 3, 100)
+true_mu = np.sin(X)             # true function
+true_sigma = 0.3 + 0.5 * (X**2) # variance grows with |x|
+y = true_mu + np.random.randn(*X.shape) * true_sigma
+
+plt.scatter(X, y, s=15, label="data", alpha=0.6)
+plt.plot(X, true_mu, 'r', label="true mean")
+plt.title("Noisy data with input-dependent variance")
+plt.legend()
+plt.show()
+
+# We'll use a linear model for both mean and log-variance
+# mu(x) = a1*x + b1
+# log_sigma2(x) = a2*x + b2
+a1, b1 = 0.0, 0.0
+a2, b2 = 0.0, np.log(0.5)  # start with some guess
+
+lr = 0.01  # learning rate
+
+for epoch in range(3000):
+    mu_pred = a1*X + b1
+    log_sigma2_pred = a2*X + b2
+    sigma2_pred = np.exp(log_sigma2_pred)
+
+    # NLL loss
+    loss = 0.5*np.mean(log_sigma2_pred + (y - mu_pred)**2 / sigma2_pred)
+
+    # Gradients (hand derived)
+    d_mu = (mu_pred - y) / sigma2_pred
+    d_a1 = np.mean(d_mu * X)
+    d_b1 = np.mean(d_mu)
+
+    d_log_sigma2 = 0.5 - 0.5*(y - mu_pred)**2 / sigma2_pred
+    d_a2 = np.mean(d_log_sigma2 * X)
+    d_b2 = np.mean(d_log_sigma2)
+
+    # Gradient step
+    a1 -= lr * d_a1
+    b1 -= lr * d_b1
+    a2 -= lr * d_a2
+    b2 -= lr * d_b2
+
+mu_learned = a1*X + b1
+sigma_learned = np.sqrt(np.exp(a2*X + b2))
+
+plt.scatter(X, y, s=15, alpha=0.4, label="data")
+plt.plot(X, true_mu, 'r', label="true mean")
+plt.plot(X, mu_learned, 'b', label="learned mean")
+
+# Plot uncertainty bands (±2σ)
+plt.fill_between(X, mu_learned - 2*sigma_learned, mu_learned + 2*sigma_learned,
+                 color='blue', alpha=0.2, label='±2σ band')
+
+plt.title("Heteroscedastic Regression: Mean + Uncertainty")
+plt.legend()
+plt.show()
