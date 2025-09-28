@@ -145,3 +145,21 @@ plt.fill_between(X, mu_learned - 2*sigma_learned, mu_learned + 2*sigma_learned,
 plt.title("Heteroscedastic Regression: Mean + Uncertainty")
 plt.legend()
 plt.show()
+
+import torch
+
+sigma2 = 0.5
+
+# Example predictions and targets
+y_true = torch.tensor([2.0, 1.0, 3.0])
+y_pred = torch.tensor([2.5, 0.8, 2.7])
+
+# MSE
+mse_loss = torch.mean((y_true - y_pred)**2)
+
+# NLL
+nll_loss = (1/(2*sigma2)) * mse_loss + 0.5*torch.log(2*torch.pi*sigma2)
+
+print("MSE:", mse_loss.item())
+print("NLL:", nll_loss.item())
+
