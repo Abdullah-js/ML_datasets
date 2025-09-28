@@ -45,3 +45,22 @@ def asymmetric_loss(y_true, y_pred, c_fn=5, c_fp=1):
 # empirical risk with asymmetric loss
 risk = asymmetric_loss(y, y_pred)
 print("Empirical risk (asymmetric):", risk)
+import numpy as np
+
+def l2_loss(y, y_hat):
+    return (y - y_hat) ** 2
+
+def mse(y_true, y_pred):
+    """
+    y_true: list or numpy array of true values
+    y_pred: list or numpy array of predicted values
+    """
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    return np.mean((y_true - y_pred) ** 2)
+#showcase
+y_true = [3, -0.5, 2, 7]
+y_pred = [2.5, 0.0, 2, 8]
+
+print("Single loss example (y=3, y_hat=2.5):", l2_loss(3, 2.5))
+print("MSE for dataset:", mse(y_true, y_pred))
